@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OBLAST.STUDIO
 
-## Getting Started
+Website for Oblast — an independent studio for design, technology and digital experiences.
+Built from `OBLAST-WEBSITE-SPEC.md` (v1), one phase at a time.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · SCSS modules · Zod · pnpm · Vercel
+
+## Commands
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm dev            # http://localhost:3000
+pnpm check          # lint + typecheck + production build
+pnpm placeholders   # regenerate MOCK posters in public/media/projects
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+src/
+  app/                    routes: /, /work, /work/[slug], /about, /contact, sitemap, robots
+  components/
+    shell/                SiteHeader (segmented nav), LocalClock, SiteFooter, PageIntro
+    hero/                 Hero, HeroPoster (static fallback; WebGL cube arrives in Phase 1)
+    projects/             ProjectGrid, ProjectTile (6/3/2/1-column modular grid)
+    case-study/           CaseHero, ProjectMetadata, ContentBlocks, ProjectPagination
+  content/projects/       typed project entries (currently MOCK)
+  lib/                    site config, Zod content schema, project loaders + validation
+  styles/                 tokens, typography, grid
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Content
 
-## Learn More
+Projects live in `src/content/projects/index.ts` and are validated at build time by
+`src/lib/projects.ts` (Zod schema + unique slugs/orders + alt text + spans within column
+counts). A bad entry fails the build.
 
-To learn more about Next.js, take a look at the following resources:
+Grid spans are set per breakpoint (`desktop` 6 cols, `tablet` 3, `mobile` 2; narrow is
+always 1). Rows are half a column wide, so `{ x: 1, y: 2 }` is square. Order is source
+order — no `dense` packing — so choose spans that tile cleanly.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Before launch
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Everything marked **PLACEHOLDER** or **MOCK** must be replaced:
 
-## Deploy on Vercel
+- [ ] `src/lib/site.ts` — studio copy, contact email, clock timezone (currently UTC), then set `preLaunch: false`
+- [ ] `src/content/projects/` — real projects, media, credits (all mocks have `placeholder: true`)
+- [ ] `src/app/about/page.tsx` — approach, people, capabilities
+- [ ] `src/components/hero/HeroPoster.tsx` — real still of the production cube
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+While `preLaunch` is true the whole site is `noindex` and `robots.txt` disallows crawling.
+Mock project pages are always `noindex` and excluded from the sitemap.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Phases
+
+- [x] **0 — Foundation:** tokens, fonts, shell, grid primitives, typed fixtures, all routes server-rendered
+- [ ] **1 — Cube prototype:** R3F video cube, BoxGeometry baseline → rounded triplanar shader, poster/lifecycle
+- [ ] **2 — Homepage & archive:** cube in hero, media loading, video previews, filters
+- [ ] **3 — Intro & cursor:** centred strip → header Flip intro, metadata cursor
+- [ ] **4 — Case studies & transitions:** tile → hero overlay controller, scroll restoration
+- [ ] **5 — Polish & deploy:** real content, cross-browser/device testing, Vercel + domain

@@ -1,0 +1,71 @@
+.tile {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-tile);
+}
+
+.link {
+  position: absolute;
+  inset: 0;
+  display: block;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
+  }
+}
+
+.media {
+  object-fit: cover;
+  transition: transform 600ms var(--ease-out);
+}
+
+.caption {
+  position: absolute;
+  left: var(--space-2);
+  right: var(--space-2);
+  bottom: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  pointer-events: none;
+
+  > span {
+    padding: 0.35em 0.55em;
+    background: var(--color-canvas);
+    color: var(--color-ink);
+  }
+}
+
+.title {
+  font-weight: 600;
+}
+
+.meta {
+  color: var(--color-muted) !important;
+}
+
+.num {
+  margin-left: auto;
+}
+
+// Fine pointers: caption reveals on hover/focus (Phase 3 adds the metadata cursor).
+@media (hover: hover) and (pointer: fine) {
+  .caption {
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .link:hover .caption,
+  .link:focus-visible .caption {
+    opacity: 1;
+    transform: none;
+  }
+
+  .link:hover .media {
+    transform: scale(1.015);
+  }
+}

@@ -1,0 +1,57 @@
+@use "tokens" as *;
+
+// Editorial modular grid.
+// The wrapper is the size container; the grid derives its row unit from the
+// wrapper's inline size so a 1×2 tile is square at every column count.
+// (Container units resolve against an ancestor container, not the element itself.)
+
+.project-archive {
+  container-type: inline-size;
+}
+
+.project-grid {
+  --cols: 6;
+  --row-unit: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols) / 2);
+
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-auto-rows: var(--row-unit);
+  gap: var(--gap);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  // Spans per breakpoint come from project data via inline custom properties.
+  > * {
+    grid-column: span var(--span-x-desktop, 1);
+    grid-row: span var(--span-y-desktop, 2);
+    min-width: 0;
+  }
+
+  @media (max-width: $bp-tablet) {
+    --cols: 3;
+
+    > * {
+      grid-column: span var(--span-x-tablet, 1);
+      grid-row: span var(--span-y-tablet, 2);
+    }
+  }
+
+  @media (max-width: $bp-mobile) {
+    --cols: 2;
+
+    > * {
+      grid-column: span var(--span-x-mobile, 1);
+      grid-row: span var(--span-y-mobile, 2);
+    }
+  }
+
+  @media (max-width: $bp-narrow) {
+    --cols: 1;
+
+    > * {
+      grid-column: span 1;
+      grid-row: span 2;
+    }
+  }
+}

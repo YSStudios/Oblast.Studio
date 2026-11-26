@@ -1,0 +1,59 @@
+// Design tokens — OBLAST
+// Colour comes primarily from the work and the cube footage; the UI stays neutral.
+
+:root {
+  // Palette
+  --color-canvas: #f5f5f3;
+  --color-ink: #090909;
+  --color-muted: #6f6f6b;
+  --color-line: #d9d9d5;
+  --color-tile: #e6e6e2; // empty media placeholder
+  --color-focus: #090909;
+
+  // Type families (set by next/font variables on <html>)
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  // Type scale — UI 11–13px, body 15–18px, editorial 32–72px
+  --text-ui: clamp(0.6875rem, 0.66rem + 0.12vw, 0.8125rem);
+  --text-body: clamp(0.9375rem, 0.89rem + 0.25vw, 1.125rem);
+  --text-lead: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+  --text-h2: clamp(1.5rem, 1.2rem + 1.4vw, 2.5rem);
+  --text-display: clamp(2rem, 1.2rem + 3.6vw, 4.5rem);
+
+  --tracking-ui: 0.04em;
+  --leading-tight: 1;
+  --leading-body: 1.5;
+
+  // Spacing
+  --gap: 3px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --page-pad: clamp(0.75rem, 0.5rem + 1vw, 1.25rem);
+
+  // Shell
+  --header-height: 2.75rem; // reserved so the intro (Phase 3) can't shift layout
+  --radius-pill: 999px;
+  --measure: 68ch;
+
+  // Motion
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 160ms;
+  --duration-base: 320ms;
+
+  // Layers
+  --z-header: 100;
+  --z-cursor: 200;
+  --z-transition: 90; // overlay sits above page, below navigation
+}
+
+// Breakpoints (match grid column counts: 6 / 3 / 2 / 1)
+$bp-narrow: 420px;
+$bp-mobile: 720px;
+$bp-tablet: 1100px;

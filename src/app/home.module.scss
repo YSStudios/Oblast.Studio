@@ -1,0 +1,32 @@
+@use "../styles/tokens" as *;
+
+.statement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--space-4) var(--space-8);
+  padding: var(--space-16) var(--page-pad) 0;
+
+  > p {
+    max-width: 30ch;
+  }
+
+  @media (max-width: $bp-mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.more {
+  grid-column: 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  width: fit-content;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: $bp-mobile) {
+    grid-column: 1;
+  }
+}

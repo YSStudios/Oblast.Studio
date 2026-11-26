@@ -1,0 +1,10 @@
+.intro {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--page-pad) var(--space-8);
+}
+
+.body {
+  max-width: 40ch;
+  color: var(--color-muted);
+}

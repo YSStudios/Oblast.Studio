@@ -1,0 +1,57 @@
+@use "../../styles/tokens" as *;
+
+.footer {
+  margin-top: var(--space-16);
+  padding: var(--space-12) var(--page-pad) calc(var(--space-6) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-line);
+}
+
+.inner {
+  display: grid;
+  gap: var(--space-12);
+}
+
+.statement {
+  max-width: 28ch;
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+  align-items: end;
+
+  > :last-child {
+    justify-self: end;
+  }
+
+  @media (max-width: $bp-mobile) {
+    grid-template-columns: 1fr;
+
+    > :last-child {
+      justify-self: start;
+    }
+  }
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.mail {
+  display: inline-block;
+  margin-top: var(--space-2);
+  text-transform: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

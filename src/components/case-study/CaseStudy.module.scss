@@ -1,0 +1,185 @@
+@use "../../styles/tokens" as *;
+
+// ── Hero ────────────────────────────────────────────────────────────
+.hero {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--gap) 0;
+}
+
+.kicker {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6em;
+  padding: 0 var(--page-pad);
+}
+
+.mock {
+  padding: 0.1em 0.6em;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+}
+
+.title {
+  text-align: center;
+  padding: 0 var(--page-pad) var(--space-4);
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.heroMedia {
+  position: relative;
+  width: 100%;
+  max-height: 85svh;
+  min-height: 40svh;
+  overflow: hidden;
+  background: var(--color-tile);
+}
+
+// ── Metadata ────────────────────────────────────────────────────────
+.meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-8);
+  padding: var(--space-8) var(--page-pad);
+  border-bottom: 1px solid var(--color-line);
+
+  @media (max-width: $bp-mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6) var(--space-4);
+  align-content: start;
+
+  @media (max-width: $bp-tablet) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+
+  dd {
+    font-size: var(--text-body);
+  }
+}
+
+.description {
+  display: grid;
+  gap: var(--space-4);
+}
+
+// ── Blocks ──────────────────────────────────────────────────────────
+.blocks {
+  display: grid;
+  gap: var(--gap);
+  padding: var(--gap);
+}
+
+.figure {
+  display: grid;
+  gap: var(--space-2);
+
+  figcaption {
+    padding: 0 var(--space-2) var(--space-2);
+  }
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-tile);
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap);
+
+  @media (max-width: $bp-mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.text {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--page-pad);
+  margin-left: auto;
+  width: min(100%, 50%);
+
+  @media (max-width: $bp-mobile) {
+    width: 100%;
+  }
+}
+
+.mediaText {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap) var(--space-8);
+  align-items: end;
+
+  > .prose {
+    padding: var(--space-6) var(--page-pad);
+  }
+
+  &[data-side="right"] > :first-child {
+    order: 2;
+  }
+
+  @media (max-width: $bp-mobile) {
+    grid-template-columns: 1fr;
+
+    &[data-side="right"] > :first-child {
+      order: 0;
+    }
+  }
+}
+
+// ── Pagination ──────────────────────────────────────────────────────
+.pagination {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap);
+  padding: 0 var(--gap);
+
+  @media (max-width: $bp-mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pageLink {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--page-pad);
+  background: var(--color-ink);
+  color: var(--color-canvas);
+  transition: background var(--duration-fast) var(--ease-out);
+
+  :global(.ui-muted) {
+    color: rgb(245 245 243 / 0.6);
+  }
+
+  &:hover {
+    background: #222;
+  }
+}
+
+.pageNext {
+  text-align: right;
+}

@@ -1,0 +1,72 @@
+@use "../../styles/tokens" as *;
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "copy stage"
+    "footer footer";
+  gap: var(--space-6) var(--space-8);
+  // ~75–90svh including the header.
+  min-height: calc(85svh - var(--header-height));
+  padding: var(--space-8) var(--page-pad) var(--space-4);
+}
+
+.copy {
+  grid-area: copy;
+  align-self: center;
+  display: grid;
+  gap: var(--space-6);
+}
+
+.descriptor {
+  max-width: 30ch;
+  color: var(--color-muted);
+}
+
+.stage {
+  grid-area: stage;
+  position: relative;
+  align-self: center;
+  justify-self: center;
+  // Cube occupies roughly 40–55% of viewport width; capped by height.
+  width: min(46vw, 70svh);
+  aspect-ratio: 1;
+}
+
+.footer {
+  grid-area: footer;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.cue {
+  display: inline-flex;
+  gap: 0.5em;
+  min-height: 44px;
+  align-items: center;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: $bp-mobile) {
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "copy"
+      "stage"
+      "footer";
+    // 65–85svh target, but allow natural expansion.
+    min-height: calc(75svh - var(--header-height));
+    padding-top: var(--space-6);
+  }
+
+  .stage {
+    width: min(78vw, 46svh);
+  }
+}

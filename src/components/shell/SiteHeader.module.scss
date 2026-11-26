@@ -1,0 +1,107 @@
+@use "../../styles/tokens" as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  padding: calc(var(--gap) + env(safe-area-inset-top)) var(--gap) 0;
+  background: var(--color-canvas);
+  // Reserve final height so later intro animation never causes layout shift.
+  min-height: calc(var(--header-height) + env(safe-area-inset-top));
+}
+
+.bar {
+  display: flex;
+  gap: var(--gap);
+  height: calc(var(--header-height) - var(--gap));
+}
+
+.segment {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  background: var(--color-ink);
+  color: var(--color-canvas);
+  white-space: nowrap;
+}
+
+.mark {
+  flex: 0 0 auto;
+  font-weight: 600;
+}
+
+.nav {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.links {
+  display: flex;
+  gap: var(--space-6);
+  list-style: none;
+  padding: 0;
+}
+
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  color: rgb(245 245 243 / 0.62);
+  transition: color var(--duration-fast) var(--ease-out);
+
+  &:hover,
+  &[aria-current="page"] {
+    color: var(--color-canvas);
+  }
+
+  &[aria-current="page"]::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    margin-right: 0.45em;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+.clock {
+  flex: 0 0 auto;
+  color: rgb(245 245 243 / 0.62);
+}
+
+.contact {
+  flex: 0 0 auto;
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-4);
+  transition: background var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    background: #2a2a2a;
+  }
+}
+
+.segment:focus-visible {
+  outline-color: var(--color-ink);
+  outline-offset: 2px;
+}
+
+@media (max-width: $bp-mobile) {
+  .clock {
+    display: none;
+  }
+
+  .links {
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: $bp-narrow) {
+  .segment {
+    padding: 0 var(--space-2);
+  }
+
+  .contact {
+    padding: 0 var(--space-3);
+  }
+}
