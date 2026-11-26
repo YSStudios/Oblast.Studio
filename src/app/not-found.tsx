@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { TransitionLink as Link } from "@/components/transitions/TransitionLink";
 import { PageIntro } from "@/components/shell/PageIntro";
 
 export default function NotFound() {

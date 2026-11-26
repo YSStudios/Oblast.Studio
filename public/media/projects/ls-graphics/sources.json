@@ -1,0 +1,102 @@
+{
+  "collection": "https://www.ls.graphics/free-mockups",
+  "usage": "ls.graphics preview imagery for mock project grid thumbnails. Original designs remain credited to ls.graphics.",
+  "assets": [
+    {
+      "title": "Free MacBook Pro PROLED XDR Display Mockup",
+      "source": "https://www.ls.graphics/assets/free-floating-macbook-pro-mockup",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/ff9389fd-9b3b-4196-a12c-40b02c899a87?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-01.webp",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "title": "Free HomeView Mockup",
+      "source": "https://www.ls.graphics/assets/free-home-view-mockup",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/29267da5-dd27-410f-9d91-3084e56392e3?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-02.webp",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "title": "AS-Mockups, Free iPhone Duo, Scene 13",
+      "source": "https://www.ls.graphics/assets/as-mockups-iphone-duo-013",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/1dd998e8-730d-47f9-a27b-306e807f1f8c?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-03.webp",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "title": "Free iPhone 18 Pro Mockup, Scene 9",
+      "source": "https://www.ls.graphics/assets/i-phone-18-pro-009",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/04d917ed-acde-4b69-8027-13ecd2b6ab83?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-04.webp",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "title": "AR-Mockups, Free iPhone 18 Pro, Scene 2",
+      "source": "https://www.ls.graphics/assets/ar-mockups-iphone-18-pro-002",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/9a8b4723-0881-4c61-9c4d-0889a8f38a17?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-05.webp",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "title": "Free iPhone Duo Mockup",
+      "source": "https://www.ls.graphics/assets/free-i-phone-duo-mockup",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/b8f5f6f2-7e06-4743-9c67-328b12dd8df9?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-06.webp",
+      "width": 1200,
+      "height": 896
+    },
+    {
+      "title": "Free iPhone Duo Mockup",
+      "source": "https://www.ls.graphics/assets/su3a8-vk-free-i-phone-duo-mockup",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/151926b2-8ed9-4f66-8635-7ce78b4ac3cd?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-07.webp",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "title": "Free iPhone 18 Pro Mockup",
+      "source": "https://www.ls.graphics/assets/free-i-phone-18-pro-mockup",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/bc5c5bb0-4109-4220-91e6-6f6ccfa8e646?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-08.webp",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "title": "Free Envelope Mail Mockup",
+      "source": "https://www.ls.graphics/assets/envelope-mail-mockup",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/4a4c5c6e-8169-4aae-8818-fb3f4dacfc1b?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-09.webp",
+      "width": 1200,
+      "height": 896
+    },
+    {
+      "title": "Free Metallic Foil Pouch Mockup",
+      "source": "https://www.ls.graphics/assets/metallic-foil-pouch-mockup",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/17146b84-1430-4069-924f-cde886aad331?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-10.webp",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "title": "Spray Can Mockup",
+      "source": "https://www.ls.graphics/assets/spray-can-mockup",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/a3ad9c6f-52bc-47b9-907c-419774959668?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-11.webp",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "title": "Metallic Bubble Mailer Mockup",
+      "source": "https://www.ls.graphics/assets/metallic-bubble-mailer-mockup",
+      "url": "https://ls-graphics-directus-direct.b-cdn.net/assets/f8d6b4a8-5992-4bfe-a7ea-948d735288c1?width=1200&format=webp&quality=85",
+      "src": "/media/projects/ls-graphics/mockup-12.webp",
+      "width": 1200,
+      "height": 900
+    }
+  ]
+}

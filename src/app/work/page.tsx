@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
-import { PageIntro } from "@/components/shell/PageIntro";
 import { getProjectNumber, getProjects } from "@/lib/projects";
+import styles from "./work.module.scss";
 
 export const metadata: Metadata = {
   title: "Work",
@@ -9,18 +9,23 @@ export const metadata: Metadata = {
   alternates: { canonical: "/work" },
 };
 
+// The grid starts just under the nav; the page intro ("Index · N" + "Work")
+// keeps its original typographic look but is laid over the grid.
 // Category filters (GSAP Flip reflow, shareable ?category=) arrive in Phase 2.
 export default function WorkPage() {
   const projects = getProjects();
 
   return (
-    <>
-      <PageIntro eyebrow={`Index · ${String(projects.length).padStart(2, "0")}`} title="Work" />
+    <div className={styles.archive}>
+      <header className={styles.intro}>
+        <p className="ui">Index · {String(projects.length).padStart(2, "0")}</p>
+        <h1 className="display">Work</h1>
+      </header>
       <ProjectGrid
         label="All projects"
         projects={projects}
         numbers={projects.map(getProjectNumber)}
       />
-    </>
+    </div>
   );
 }

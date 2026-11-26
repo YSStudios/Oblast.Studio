@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { TransitionLink as Link } from "@/components/transitions/TransitionLink";
 import type { Project } from "@/lib/content-schema";
 import styles from "./CaseStudy.module.scss";
 

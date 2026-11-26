@@ -4,7 +4,11 @@ import { type RefObject, useEffect, useState, useSyncExternalStore } from "react
 
 function subscribeDocument(onChange: () => void) {
   document.addEventListener("visibilitychange", onChange);
-  return () => document.removeEventListener("visibilitychange", onChange);
+  window.addEventListener("oblast:transition", onChange);
+  return () => {
+    document.removeEventListener("visibilitychange", onChange);
+    window.removeEventListener("oblast:transition", onChange);
+  };
 }
 
 /**
@@ -16,7 +20,7 @@ export function useVisibility(ref: RefObject<Element | null>, rootMargin = "100p
 
   const docVisible = useSyncExternalStore(
     subscribeDocument,
-    () => document.visibilityState === "visible",
+    () => document.visibilityState === "visible" && document.documentElement.dataset.datamosh !== "active",
     () => false,
   );
 

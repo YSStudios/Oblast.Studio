@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { TransitionLink as Link } from "@/components/transitions/TransitionLink";
 import { Hero } from "@/components/hero/Hero";
 import { ProjectGrid } from "@/components/projects/ProjectGrid";
 import { getFeaturedProjects, getProjectNumber } from "@/lib/projects";

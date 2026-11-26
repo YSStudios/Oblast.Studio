@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <defs>
+    <radialGradient id="g" cx="29%" cy="3%" r="85%">
+      <stop offset="0" stop-color="#6e6e6e"/>
+      <stop offset="1" stop-color="#141414"/>
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#g)"/>
+  <g fill="none" stroke="#6e6e6e" stroke-opacity="0.25">
+    <line x1="0" y1="500" x2="1600" y2="500"/>
+    <line x1="800" y1="0" x2="800" y2="1000"/>
+    <rect x="128" y="80" width="1344" height="840"/>
+  </g>
+  <text x="128" y="140" fill="#141414" fill-opacity="0.85"
+    font-family="ui-monospace, monospace" font-size="45" letter-spacing="2">MOCK 15 · DETAIL-A</text>
+</svg>

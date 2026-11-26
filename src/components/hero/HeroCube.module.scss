@@ -13,8 +13,10 @@
 
 .canvas {
   opacity: 0;
+}
 
-  // Cheap CSS contact shadow under the live cube.
+// Cheap CSS contact shadow under the live shape (on the root: the canvas bleeds).
+.root[data-state="live"] {
   &::before {
     content: "";
     position: absolute;
@@ -26,9 +28,7 @@
     background: radial-gradient(closest-side, rgb(9 9 9 / 0.16), transparent);
     pointer-events: none;
   }
-}
 
-.root[data-state="live"] {
   .canvas {
     opacity: 1;
   }
@@ -48,9 +48,23 @@
   background: var(--color-canvas);
   border: 1px solid var(--color-line);
   color: var(--color-ink);
-  transition: border-color var(--duration-fast) var(--ease-out);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
 
-  &:hover {
+  // Visually hidden for pointer users; appears when reached by keyboard so the
+  // looping motion can still be paused (WCAG 2.2.2). Screen readers always get it.
+  opacity: 0;
+  pointer-events: none;
+
+  &:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
     border-color: var(--color-ink);
   }
+}
+
+// The contact shadow suits a single floating slab, not a run of blocks.
+.root[data-state="live"][data-shape="chain"]::before {
+  content: none;
 }

@@ -2,7 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/shell/SiteFooter";
 import { SiteHeader } from "@/components/shell/SiteHeader";
+import { ProjectCursor } from "@/components/projects/ProjectCursor";
+import { SmoothScroll } from "@/components/shell/SmoothScroll";
 import { site } from "@/lib/site";
+import { TransitionProvider } from "@/components/transitions/TransitionProvider";
+import { RouteReady } from "@/components/transitions/RouteReady";
 import "./globals.scss";
 
 // next/font downloads at build time and self-hosts — no runtime Google requests.
@@ -40,14 +44,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
+        <TransitionProvider>
         <a href="#main" className="skip-link ui">
           Skip to content
         </a>
         <SiteHeader />
         <main id="main" tabIndex={-1}>
           {children}
+          <RouteReady />
         </main>
         <SiteFooter />
+        <ProjectCursor />
+        <SmoothScroll />
+        </TransitionProvider>
       </body>
     </html>
   );

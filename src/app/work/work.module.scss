@@ -1,0 +1,26 @@
+// Projects index: a small gap under the nav, then the grid with the original
+// page intro ("Index · N" / "Work") laid over its top-left.
+
+.archive {
+  position: relative;
+  padding-top: var(--space-2);
+}
+
+.intro {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--space-2) + var(--space-4));
+  left: var(--page-pad);
+  display: grid;
+  gap: var(--space-4);
+  // White + difference blend: inverts against whatever tile is beneath, so
+  // the text stays legible over light and dark posters alike.
+  color: #ffffff;
+  mix-blend-mode: difference;
+  // Decorative overlay: never blocks the tile (or the cursor) beneath.
+  pointer-events: none;
+
+  h1 {
+    margin: 0;
+  }
+}

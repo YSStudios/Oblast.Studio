@@ -7,6 +7,9 @@
 
 .project-archive {
   container-type: inline-size;
+  // Sides come from the page edge margin (body); just a gutter below.
+  // Container units measure the content box, so the row unit stays exact.
+  padding: 0 0 var(--gap);
 }
 
 .project-grid {

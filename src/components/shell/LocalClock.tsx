@@ -29,8 +29,8 @@ export function LocalClock({ timeZone, label }: { timeZone: string; label: strin
 
   return (
     <span>
-      <span aria-hidden="true">{label} </span>
-      {/* Fixed-width digits so ticking never shifts layout */}
+      {/* Fixed-width digits so ticking never shifts layout. The location label
+          is shown beside it by the header; it stays in the accessible name. */}
       <time
         style={{ fontVariantNumeric: "tabular-nums" }}
         aria-label={`Studio local time, ${label}`}

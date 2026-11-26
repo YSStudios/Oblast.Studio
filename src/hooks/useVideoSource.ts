@@ -14,7 +14,11 @@ export type VideoStatus = "loading" | "playing" | "paused" | "blocked" | "error"
  */
 export function useVideoSource(
   src: string,
-  { playing, onStatus }: { playing: boolean; onStatus?: (s: VideoStatus) => void },
+  {
+    playing,
+    playbackRate = 1,
+    onStatus,
+  }: { playing: boolean; playbackRate?: number; onStatus?: (s: VideoStatus) => void },
 ) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const onStatusRef = useRef(onStatus);
@@ -64,6 +68,15 @@ export function useVideoSource(
       videoRef.current = null;
     };
   }, [src]);
+
+  // Speed. defaultPlaybackRate keeps it across `loop` restarts and reloads.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const rate = Math.min(Math.max(playbackRate, 0.0625), 4);
+    video.defaultPlaybackRate = rate;
+    video.playbackRate = rate;
+  }, [src, playbackRate]);
 
   // Play / pause with the visibility + user pause state.
   useEffect(() => {

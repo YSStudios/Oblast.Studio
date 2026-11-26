@@ -1,10 +1,11 @@
 // Design tokens — OBLAST
-// Colour comes primarily from the work and the cube footage; the UI stays neutral.
+// Colour comes primarily from the work, with orange accents for navigation and cursor.
 
 :root {
   // Palette
   --color-canvas: #f5f5f3;
   --color-ink: #090909;
+  --color-accent: #ff6b00;
   --color-muted: #6f6f6b;
   --color-line: #d9d9d5;
   --color-tile: #e6e6e2; // empty media placeholder
@@ -38,12 +39,19 @@
   --page-pad: clamp(0.75rem, 0.5rem + 1vw, 1.25rem);
 
   // Shell
-  --header-height: 2.75rem; // reserved so the intro (Phase 3) can't shift layout
+  // Navigation bar: one 22px row of black segments, edge to edge.
+  --nav-height: 22px;
+  --nav-dim: #8c8c8c;
+  --nav-top: 8px; // margin above the bar
+  --edge: 6px; // white margin at the left and right of the viewport
+  --header-height: calc(var(--nav-top) + var(--nav-height)); // reserved so the intro can't shift layout
   --radius-pill: 999px;
   --measure: 68ch;
 
   // Motion
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --duration-fast: 160ms;
   --duration-base: 320ms;
 
@@ -57,3 +65,10 @@
 $bp-narrow: 420px;
 $bp-mobile: 720px;
 $bp-tablet: 1100px;
+
+// Narrow screens stack the nav onto a second row.
+@media (max-width: $bp-mobile) {
+  :root {
+    --header-height: calc(var(--nav-top) + 2 * var(--nav-height) + var(--gap));
+  }
+}

@@ -1,43 +1,58 @@
-// Static cube poster. Always rendered first; the WebGL video cube (Phase 1)
-// fades in over it and this remains the fallback for reduced motion,
-// data-saver, WebGL failure and autoplay rejection.
-// TEMPORARY ART — replace with a rendered still of the production cube.
+// Static stand-in for the hero glass chain. Renders first (and on the server);
+// the WebGL chain fades in over it, and this stays as the fallback for reduced
+// motion, data saver, WebGL failure and video errors.
+// TEMPORARY ART — replace with a rendered still of the production chain.
+
+// Big blocks along the same lower-left → upper-right run as the live chain,
+// entering and leaving the frame and shrinking as they recede; drawn
+// far-to-near so nearer ones overlap.
+const BLOCKS = [
+  { x: 392, y: 22, w: 96, h: 66, rot: -16, fill: "#9fe6c9" },
+  { x: 322, y: 40, w: 108, h: 76, rot: -14, fill: "#bfe9f7" },
+  { x: 240, y: 62, w: 126, h: 90, rot: -12, fill: "#5fe0b8" },
+  { x: 142, y: 88, w: 148, h: 108, rot: -10, fill: "#2fa8e8" },
+  { x: 24, y: 118, w: 172, h: 126, rot: -8, fill: "#6fe05a" },
+  { x: -120, y: 150, w: 196, h: 144, rot: -6, fill: "#e6ecea" },
+];
+
 export function HeroPoster() {
   return (
     <svg
-      viewBox="0 0 400 400"
+      viewBox="0 0 420 230"
       aria-hidden="true"
       focusable="false"
+      // Fill the full-bleed stage; blocks run off both edges like the live chain.
+      preserveAspectRatio="xMidYMid slice"
+      overflow="visible"
       style={{ width: "100%", height: "100%" }}
     >
       <defs>
-        <linearGradient id="hp-top" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#efeee6" />
-          <stop offset="1" stopColor="#c9c8bd" />
+        <linearGradient id="hp-sheen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.55" />
+          <stop offset="0.5" stopColor="#ffffff" stopOpacity="0" />
+          <stop offset="1" stopColor="#ffffff" stopOpacity="0.25" />
         </linearGradient>
-        <linearGradient id="hp-left" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3a3d38" />
-          <stop offset="1" stopColor="#141513" />
-        </linearGradient>
-        <linearGradient id="hp-right" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#7d8378" />
-          <stop offset="1" stopColor="#2b2e29" />
-        </linearGradient>
-        <radialGradient id="hp-shadow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#090909" stopOpacity="0.18" />
-          <stop offset="1" stopColor="#090909" stopOpacity="0" />
-        </radialGradient>
+        <filter id="hp-glass" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" />
+        </filter>
       </defs>
-      <ellipse cx="200" cy="352" rx="140" ry="22" fill="url(#hp-shadow)" />
-      <g strokeLinejoin="round" strokeWidth="14">
-        <path d="M200 60 L330 130 L200 200 L70 130 Z" fill="url(#hp-top)" stroke="url(#hp-top)" />
-        <path d="M70 130 L200 200 L200 340 L70 270 Z" fill="url(#hp-left)" stroke="url(#hp-left)" />
-        <path d="M330 130 L200 200 L200 340 L330 270 Z" fill="url(#hp-right)" stroke="url(#hp-right)" />
-      </g>
-      <g fill="none" stroke="#f5f5f3" strokeOpacity="0.35" strokeWidth="1.5">
-        <path d="M200 200 L200 340" />
-        <path d="M70 130 L200 200 L330 130" />
-      </g>
+      {BLOCKS.map((b, i) => (
+        <g key={i} transform={`rotate(${b.rot} ${b.x + b.w / 2} ${b.y + b.h / 2})`}>
+          <rect x={b.x} y={b.y} width={b.w} height={b.h} rx={b.h * 0.3} fill={b.fill} opacity="0.92" filter="url(#hp-glass)" />
+          <rect x={b.x} y={b.y} width={b.w} height={b.h} rx={b.h * 0.3} fill="url(#hp-sheen)" />
+          <rect
+            x={b.x + 1}
+            y={b.y + 1}
+            width={b.w - 2}
+            height={b.h - 2}
+            rx={b.h * 0.3}
+            fill="none"
+            stroke="#ffffff"
+            strokeOpacity="0.6"
+            strokeWidth="1.5"
+          />
+        </g>
+      ))}
     </svg>
   );
 }

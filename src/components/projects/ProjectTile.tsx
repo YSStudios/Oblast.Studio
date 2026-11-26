@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { TransitionLink as Link } from "@/components/transitions/TransitionLink";
 import type { CSSProperties } from "react";
 import type { Project } from "@/lib/content-schema";
 import styles from "./ProjectTile.module.scss";
@@ -37,7 +37,18 @@ export function ProjectTile({
 
   return (
     <li className={styles.tile} style={style} data-project={project.slug}>
-      <Link href={`/work/${project.slug}`} className={styles.link}>
+      <Link
+        href={`/work/${project.slug}`}
+        className={styles.link}
+        // Read by the metadata cursor (ProjectCursor). Written from project
+        // data at render time — never scraped from the visible caption.
+        data-cursor="project"
+        data-cursor-title={project.title}
+        data-cursor-category={project.category}
+        data-cursor-year={project.year}
+        data-cursor-number={Number(number)}
+        data-cursor-discipline={project.disciplines[0]}
+      >
         {/* Decorative here: the caption text below is the link's accessible name. */}
         <Image
           src={thumbnail.poster ?? thumbnail.src}
@@ -48,8 +59,9 @@ export function ProjectTile({
           className={styles.media}
           style={{ objectPosition: thumbnail.objectPosition }}
         />
-        {/* Always-present caption: visible on touch, keyboard focus and hover.
-            Hover must never be required to identify a project. */}
+        {/* Always in the DOM (it is the link's accessible name). Shown on touch
+            and keyboard focus; mouse users get the metadata cursor instead.
+            Hover is never required to identify a project. */}
         <span className={`${styles.caption} ui`}>
           <span className={styles.title}>{project.title}</span>{" "}
           <span className={styles.meta}>

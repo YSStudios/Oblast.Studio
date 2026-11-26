@@ -1,0 +1,142 @@
+// The root is a zero-size point on the pointer (moved by transform). The dot is
+// centred on it; labels sit 10px to its right with the first row centred on
+// the dot. The gap stays constant as the dot grows or shrinks.
+
+.root {
+  --d: 12px; // dot diameter
+  --row: 26px; // label row height
+  --size-ease: 260ms cubic-bezier(0.22, 1.4, 0.36, 1);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-cursor);
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  will-change: transform;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  transition: opacity var(--duration-fast) var(--ease-out);
+
+  &[data-hidden="true"] {
+    opacity: 0;
+  }
+
+  &[data-text="true"] {
+    --d: 20px;
+  }
+
+  &[data-state="project"] {
+    --d: 32px;
+  }
+}
+
+.dot {
+  position: absolute;
+  top: calc(var(--d) / -2);
+  left: calc(var(--d) / -2);
+  width: var(--d);
+  height: var(--d);
+  border-radius: 50%;
+  background: var(--color-ink);
+  transition:
+    width var(--size-ease),
+    height var(--size-ease),
+    top var(--size-ease),
+    left var(--size-ease),
+    background-color 120ms linear;
+
+  .root[data-grid="true"] & {
+    background: var(--color-accent);
+  }
+}
+
+// [ TITLE ][ CATEGORY ][ YEAR ][ N ]
+//          [ DISCIPLINE ]           ← same width as the category above
+//
+// Each label is a slot (clips, resizes while hidden) holding a box (colour +
+// text) that flips out and slides in:
+//   out → boxes rotate upward like rolodex cards and vanish
+//   in  → boxes spring in from the left, staggered left → right
+.labels {
+  position: absolute;
+  // First row centred on the dot, with breathing room to its right.
+  top: calc(var(--row) / -2);
+  left: calc(var(--d) / 2 + 10px);
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  grid-auto-rows: var(--row);
+  color: var(--color-canvas);
+  line-height: var(--row);
+  white-space: nowrap;
+  // Follow the ball size without mirroring the label layout at the edges.
+  transition: left var(--size-ease);
+}
+
+// Widths change instantly only after all boxes have left their slots.
+.cell {
+  overflow: hidden;
+  perspective: 500px;
+}
+
+// Start hidden so a fresh hover always slides in from the left. The component
+// animates each box with explicit durations and a left-to-right arrival delay.
+.box {
+  display: block;
+  height: var(--row);
+  transform: translateX(-105%);
+  transform-origin: center top;
+  backface-visibility: hidden;
+  opacity: 0;
+}
+
+.text {
+  display: inline-block;
+  padding: 0 12px;
+}
+
+.title .box,
+.year .box {
+  background: var(--color-ink);
+}
+
+.category {
+  border-radius: var(--radius-pill);
+
+  .box {
+    background: var(--color-ink);
+    border-radius: var(--radius-pill);
+  }
+}
+
+.number {
+  border-radius: var(--radius-pill);
+  text-align: center;
+
+  .box {
+    background: #6e6e6e;
+    border-radius: var(--radius-pill);
+  }
+
+  .text {
+    padding: 0 6px;
+  }
+}
+
+.discipline {
+  grid-column: 2;
+  grid-row: 2;
+
+  .box {
+    background: #6e6e6e;
+  }
+
+  .labels[data-no-discipline="true"] & {
+    visibility: hidden;
+  }
+}
+
+:global(html[data-datamosh="active"]) .root {
+  visibility: hidden;
+}

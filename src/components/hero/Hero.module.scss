@@ -1,42 +1,28 @@
 @use "../../styles/tokens" as *;
 
+// Statement top-left over one big out-of-focus colour backdrop.
 .hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: 1fr auto;
-  grid-template-areas:
-    "copy stage"
-    "footer footer";
-  gap: var(--space-6) var(--space-8);
-  // ~75–90svh including the header.
-  min-height: calc(85svh - var(--header-height));
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  // Full page: fills the viewport below the nav; the grid follows.
+  min-height: calc(100svh - var(--header-height));
   padding: var(--space-8) var(--page-pad) var(--space-4);
 }
 
-.copy {
-  grid-area: copy;
-  align-self: center;
-  display: grid;
-  gap: var(--space-6);
-}
-
-.descriptor {
-  max-width: 30ch;
-  color: var(--color-muted);
-}
-
-.stage {
-  grid-area: stage;
+.title {
   position: relative;
-  align-self: center;
-  justify-self: center;
-  // Cube occupies roughly 40–55% of viewport width; capped by height.
-  width: min(46vw, 70svh);
-  aspect-ratio: 1;
+  z-index: 1;
+  max-width: 20ch;
+  text-wrap: balance;
 }
 
 .footer {
-  grid-area: footer;
+  grid-row: 3;
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   align-items: end;
@@ -53,20 +39,30 @@
   }
 }
 
+// Colour backdrop: one big soft yellow → green field behind everything,
+// bleeding past the hero edges (the hero clips it).
+.backdrop {
+  position: absolute;
+  z-index: 0;
+  inset: 8% -12% -18% -12%;
+  border-radius: 42%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 65% at 30% 45%, #f0d54a 0%, transparent 75%),
+    radial-gradient(ellipse 55% 65% at 72% 60%, #93e05c 0%, transparent 75%),
+    linear-gradient(120deg, #f2dc6a 0%, #c4dd55 50%, #9fe36a 100%);
+  filter: blur(90px) saturate(1.1);
+  opacity: 0.8;
+}
+
 @media (max-width: $bp-mobile) {
   .hero {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    grid-template-areas:
-      "copy"
-      "stage"
-      "footer";
-    // 65–85svh target, but allow natural expansion.
-    min-height: calc(75svh - var(--header-height));
+    min-height: calc(100svh - var(--header-height));
     padding-top: var(--space-6);
   }
 
-  .stage {
-    width: min(78vw, 46svh);
+  .backdrop {
+    inset: 10% -30% -20% -30%;
+    filter: blur(60px);
   }
 }

@@ -20,6 +20,8 @@ html {
 
 body {
   min-height: 100svh;
+  // Small white margin at the left and right of the viewport (nav, hero, grid).
+  padding-inline: var(--edge);
   background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
@@ -78,6 +80,17 @@ main:focus {
   &:focus {
     transform: none;
   }
+}
+
+// Custom cursor active (fine pointers only): hide the native one everywhere
+// except where text entry needs it.
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
+}
+
+html.has-custom-cursor :is(input, textarea, select, [contenteditable="true"]) {
+  cursor: auto !important;
 }
 
 ::selection {

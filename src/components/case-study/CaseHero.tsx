@@ -2,8 +2,7 @@ import Image from "next/image";
 import type { Project } from "@/lib/content-schema";
 import styles from "./CaseStudy.module.scss";
 
-// Phase 4: the route-transition overlay measures this element (registered
-// via a small client ref component) and lands the expanding tile on it.
+// The persistent transition compositor measures this primary media region.
 export function CaseHero({ project, number }: { project: Project; number: string }) {
   const { hero } = project;
   return (
@@ -20,7 +19,7 @@ export function CaseHero({ project, number }: { project: Project; number: string
       <h1 className={`${styles.title} display`} tabIndex={-1}>
         {project.title}
       </h1>
-      <div className={styles.heroMedia} style={{ aspectRatio: `${hero.width} / ${hero.height}` }}>
+      <div data-transition-media className={styles.heroMedia} style={{ aspectRatio: `${hero.width} / ${hero.height}` }}>
         <Image
           src={hero.poster ?? hero.src}
           alt={hero.alt}

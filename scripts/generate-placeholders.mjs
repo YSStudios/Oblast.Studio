@@ -8,15 +8,25 @@ const out = join(process.cwd(), "public/media/projects");
 mkdirSync(out, { recursive: true });
 
 // Muted, footage-like duotones so the neutral UI isn't fighting loud colour.
+// A mixed wall like a real archive: light greys, near-black, high-contrast
+// black/white, one saturated red, soft greens. [dark, light] per poster.
 const palettes = [
-  ["#1d2b2a", "#8fa39a"],
-  ["#2a2218", "#c9a46a"],
-  ["#141a26", "#6f86b8"],
-  ["#2b1c1f", "#c47a7a"],
-  ["#1f2416", "#a9b86a"],
-  ["#202020", "#bdbdb6"],
-  ["#16222a", "#79b3c4"],
-  ["#261a2b", "#a98bbd"],
+  ["#8f8f8b", "#e4e4e0"],
+  ["#050505", "#f2f2f0"],
+  ["#9a9a96", "#d8d8d4"],
+  ["#0b0b0b", "#8e8e8e"],
+  ["#7d7466", "#c9c1b3"],
+  ["#000000", "#ffffff"],
+  ["#5f6460", "#c6cbc8"],
+  ["#b9b9b5", "#ecece8"],
+  ["#c0369f", "#f6d64a"],
+  ["#c40000", "#ff6b6b"],
+  ["#6f9a86", "#cfe6dc"],
+  ["#c9c9c5", "#f1f1ee"],
+  ["#3a3a38", "#bdbdb8"],
+  ["#2b4a3c", "#a9d1bf"],
+  ["#141414", "#6e6e6e"],
+  ["#4a4a48", "#d0d0cc"],
 ];
 
 const variants = {

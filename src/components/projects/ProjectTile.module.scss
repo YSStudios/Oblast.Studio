@@ -17,7 +17,6 @@
 
 .media {
   object-fit: cover;
-  transition: transform 600ms var(--ease-out);
 }
 
 .caption {
@@ -49,23 +48,15 @@
   margin-left: auto;
 }
 
-// Fine pointers: caption reveals on hover/focus (Phase 3 adds the metadata cursor).
+// Fine pointers: the metadata cursor labels the tile, so the caption stays
+// hidden on hover and only appears for keyboard focus. No zoom on hover.
 @media (hover: hover) and (pointer: fine) {
   .caption {
     opacity: 0;
-    transform: translateY(4px);
-    transition:
-      opacity var(--duration-fast) var(--ease-out),
-      transform var(--duration-fast) var(--ease-out);
+    transition: opacity var(--duration-fast) var(--ease-out);
   }
 
-  .link:hover .caption,
   .link:focus-visible .caption {
     opacity: 1;
-    transform: none;
-  }
-
-  .link:hover .media {
-    transform: scale(1.015);
   }
 }

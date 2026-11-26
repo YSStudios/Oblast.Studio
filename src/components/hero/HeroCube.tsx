@@ -5,7 +5,12 @@ import { Component, type ReactNode, useCallback, useRef, useState, useSyncExtern
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { VideoStatus } from "@/hooks/useVideoSource";
 import { useVisibility } from "@/hooks/useVisibility";
-import { type CubeConfig, type CubeSource, defaultCubeConfig } from "@/lib/cube-config";
+import {
+  CANVAS_BLEED,
+  type CubeConfig,
+  type CubeSource,
+  defaultCubeConfig,
+} from "@/lib/cube-config";
 import { HeroPoster } from "./HeroPoster";
 import styles from "./HeroCube.module.scss";
 
@@ -100,13 +105,22 @@ export function HeroCube({ source, config = defaultCubeConfig, className }: Prop
   };
 
   return (
-    <div ref={root} className={`${styles.root} ${className ?? ""}`} data-state={showCanvas ? "live" : "poster"}>
+    <div
+      ref={root}
+      className={`${styles.root} ${className ?? ""}`}
+      data-state={showCanvas ? "live" : "poster"}
+      data-shape={config.shape}
+    >
       <div className={styles.poster} aria-hidden="true">
         <HeroPoster />
       </div>
 
       {live && (
-        <div className={styles.canvas}>
+        <div
+          className={styles.canvas}
+          // Bleed past the stage so soft effects (the back shadow) fade, not clip.
+          style={{ inset: `-${CANVAS_BLEED.y * 100}% -${CANVAS_BLEED.x * 100}%` }}
+        >
           <CubeBoundary onError={handleFail}>
             <VideoCubeCanvas
               source={source}
