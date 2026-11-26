@@ -20,7 +20,8 @@ export function useVisibility(ref: RefObject<Element | null>, rootMargin = "100p
 
   const docVisible = useSyncExternalStore(
     subscribeDocument,
-    () => document.visibilityState === "visible" && document.documentElement.dataset.datamosh !== "active",
+    () => document.visibilityState === "visible" &&
+      (document.documentElement.dataset.datamosh !== "active" || document.documentElement.dataset.datamoshReveal === "true"),
     () => false,
   );
 

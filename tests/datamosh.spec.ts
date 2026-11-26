@@ -137,3 +137,37 @@ test("debug menu tunes actual route transitions and persists across pages", asyn
   await expect(page).toHaveURL(/\/work\/mock-field-notes$/);
   await idle(page);
 });
+
+test("handoff reveals the live DOM through transparent blocks before cleanup", async ({ page }) => {
+  await prepare(page);
+  await firstTile(page).click();
+  await expect(page.locator('html')).toHaveAttribute('data-datamosh-reveal', 'true');
+  await page.waitForTimeout(80);
+  const pixels = await page.evaluate(() => new Promise<{ alpha: boolean; clear: number; solid: number }>((resolve) => {
+    requestAnimationFrame(() => {
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-active="true"] canvas')!;
+      const gl = canvas.getContext('webgl2')!;
+      const data = new Uint8Array(canvas.width * canvas.height * 4);
+      // A single test-only readback verifies the default framebuffer's actual
+      // transparency while the live destination is already underneath it.
+      gl.readPixels(0, 0, canvas.width, canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+      let clear = 0, solid = 0;
+      for (let i = 3; i < data.length; i += 4) {
+        if (data[i] < 20) clear++;
+        if (data[i] > 235) solid++;
+      }
+      resolve({ alpha: gl.getContextAttributes()?.alpha === true, clear, solid });
+    });
+  }));
+  expect(pixels.alpha).toBe(true);
+  expect(pixels.clear).toBeGreaterThan(0);
+  expect(pixels.solid).toBeGreaterThan(0);
+  const heading = page.getByRole('heading', { name: 'Signal Atlas', exact: true });
+  const before = await heading.boundingBox();
+  const scroll = await page.evaluate(() => scrollY);
+  await idle(page);
+  await expect(page.locator('html')).not.toHaveAttribute('data-datamosh-reveal');
+  const after = await heading.boundingBox();
+  expect(after?.y).toBe(before?.y);
+  expect(await page.evaluate(() => scrollY)).toBe(scroll);
+});

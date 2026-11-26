@@ -49,6 +49,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     }
     if (overlay.current) overlay.current.dataset.active = "false";
     delete document.documentElement.dataset.datamosh;
+    delete document.documentElement.dataset.datamoshReveal;
     window.dispatchEvent(new CustomEvent("oblast:transition", { detail: false }));
     if (focus && request?.pushed && location.pathname === request.path) {
       const heading = [...document.querySelectorAll<HTMLElement>("main h1")].find((el) => el.getClientRects().length > 0) ?? document.getElementById("main");
@@ -136,7 +137,16 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       try {
         const incoming = captureViewport();
         request.visuals.push(incoming);
-        engine.current?.resolve(incoming, () => { if (active.current?.id === request.id) finish(true); });
+        engine.current?.resolve(incoming,
+          () => { if (active.current?.id === request.id) finish(true); },
+          () => {
+            if (active.current?.id !== request.id) return;
+            document.documentElement.dataset.datamoshReveal = "true";
+            // Resume destination video/hero behind the dissolving canvas so
+            // its first live frame does not wait for the overlay to disappear.
+            window.dispatchEvent(new CustomEvent("oblast:transition", { detail: true }));
+          },
+        );
       } catch { finish(true); }
     });
   }, [finish]);

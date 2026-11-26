@@ -23,7 +23,7 @@ export class DatamoshEngine {
   private lost: () => void;
   private failed = false;
   private mobile = matchMedia("(pointer: coarse)").matches;
-  private params = { progress: 0, strength: 0, inject: 0.005, retention: 0.96 };
+  private params = { progress: 0, strength: 0, inject: 0.005, retention: 0.96, reveal: 0 };
   preset: Preset = presets.signal;
   debug: "output" | "history" | "previous" | "mask" = "output";
   feedbackEnabled = true;
@@ -41,15 +41,21 @@ export class DatamoshEngine {
   };
   private simulation = new THREE.ShaderMaterial({ vertexShader: vertex, fragmentShader: feedback, uniforms: this.uniforms, depthTest: false, depthWrite: false });
   private copier = new THREE.ShaderMaterial({ vertexShader: vertex, fragmentShader: copy, uniforms: { uImage: { value: null as THREE.Texture | null } }, depthTest: false, depthWrite: false });
-  private display = new THREE.ShaderMaterial({ vertexShader: vertex, fragmentShader: display, uniforms: { uImage: { value: null as THREE.Texture | null } }, depthTest: false, depthWrite: false });
+  private display = new THREE.ShaderMaterial({ vertexShader: vertex, fragmentShader: display, uniforms: {
+    uImage: { value: null as THREE.Texture | null },
+    uResolution: this.uniforms.uResolution,
+    uBlockPx: this.uniforms.uBlockPx,
+    uReveal: { value: 0 },
+  }, depthTest: false, depthWrite: false });
 
   constructor(private canvas: HTMLCanvasElement, private onFailure: () => void) {
-    const context = canvas.getContext("webgl2", { antialias: false, alpha: false, powerPreference: "low-power" });
+    const context = canvas.getContext("webgl2", { antialias: false, alpha: true, premultipliedAlpha: false, powerPreference: "low-power" });
     if (!context || context.isContextLost()) throw new Error("WebGL2 unavailable");
     // A disposed renderer may leave unpack state on this persistent canvas.
     context.pixelStorei(context.UNPACK_FLIP_Y_WEBGL, false);
     context.pixelStorei(context.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    this.renderer = new THREE.WebGLRenderer({ canvas, context, antialias: false, alpha: false });
+    this.renderer = new THREE.WebGLRenderer({ canvas, context, antialias: false, alpha: true, premultipliedAlpha: false });
+    this.renderer.setClearColor(0x000000, 0);
     this.renderer.setPixelRatio(1);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.NoToneMapping;
@@ -100,6 +106,7 @@ export class DatamoshEngine {
   start(source: TransitionVisual, covered: () => void, preset: Preset = presets.signal) {
     this.stop();
     this.preset = preset;
+    this.display.uniforms.uReveal.value = 0;
     const texture = this.texture(source);
     this.uniforms.uIncoming.value = texture;
     this.uniforms.uOrigin.value.set(source.origin.x, source.origin.y);
@@ -109,7 +116,7 @@ export class DatamoshEngine {
     this.render(this.copier, this.read);
     this.display.uniforms.uImage.value = this.read.texture;
     this.render(this.display, null);
-    Object.assign(this.params, { progress: 0, strength: 0, inject: 0.005, retention: preset.feedback });
+    Object.assign(this.params, { progress: 0, strength: 0, inject: 0.005, retention: preset.feedback, reveal: 0 });
     this.canvas.style.opacity = "1";
     this.last = performance.now(); this.elapsed = 0; this.accumulator = 0;
     this.raf = requestAnimationFrame(this.tick);
@@ -120,7 +127,7 @@ export class DatamoshEngine {
       .to(this.params, { strength: 0.16, duration: 0.35, ease: "power2.out" });
   }
 
-  resolve(incoming: TransitionVisual, done: () => void) {
+  resolve(incoming: TransitionVisual, done: () => void, onReveal?: () => void) {
     this.timeline?.kill();
     this.uniforms.uIncoming.value = this.texture(incoming);
     const seconds = Math.max(0.35, this.preset.duration / 1000 - 0.18);
@@ -128,7 +135,14 @@ export class DatamoshEngine {
     // still displaced at full strength. Keep retention high through the merge.
     this.params.inject = this.preset.inject ?? 0.045;
     this.params.strength = Math.max(0.8, this.params.strength);
-    this.settling = gsap.timeline({ onComplete: done })
+    const handoff = Math.min(0.55, Math.max(0.3, seconds * 0.5));
+    this.settling = gsap.timeline({ onComplete: () => {
+      // Cleanup must remove an already-transparent surface even when GSAP's
+      // last update runs before our render RAF on a slow frame.
+      this.display.uniforms.uReveal.value = 1;
+      this.render(this.display, null);
+      done();
+    } })
       .to(this.params, {
         progress: 0.8, strength: 0.65,
         duration: seconds * 0.68, ease: "none",
@@ -137,8 +151,10 @@ export class DatamoshEngine {
         progress: 1, strength: 0, inject: 1, retention: 0.2,
         duration: seconds * 0.32, ease: "power2.inOut",
       })
-      // Finish on a fully clean GPU frame before handing off to the DOM.
-      .to(this.canvas, { opacity: 0, duration: 0.14, ease: "power1.out" });
+      // Overlap the live page reveal with settling trails, rather than
+      // finishing on a clean approximation and then swapping to the DOM.
+      .call(() => onReveal?.(), [], seconds - handoff)
+      .to(this.params, { reveal: 1, duration: handoff, ease: "sine.inOut" }, seconds - handoff);
   }
 
   configure(preset: Preset, feedbackEnabled: boolean, debug: typeof this.debug) {
@@ -184,6 +200,7 @@ export class DatamoshEngine {
         this.render(this.simulation, this.write);
         [this.read, this.write] = [this.write, this.read];
       }
+      this.display.uniforms.uReveal.value = this.params.reveal;
       this.display.uniforms.uImage.value = this.debug === "previous" ? this.write.texture : this.read.texture;
       if (this.debug === "mask") {
         this.uniforms.uDebug.value = 1;
