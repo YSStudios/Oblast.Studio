@@ -11,7 +11,7 @@
     "placeholders": "node scripts/generate-placeholders.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm build",
     "loop": "swift scripts/make-seamless-loop.swift",
-    "test:transitions": "playwright test tests/datamosh.spec.ts"
+    "test:transitions": "playwright test tests/datamosh*.spec.ts"
   },
   "dependencies": {
     "@react-three/drei": "10.7.9",

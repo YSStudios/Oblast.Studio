@@ -4,6 +4,7 @@ import type { TransitionVisual } from "./capture";
 import { presets, type Preset } from "./presets";
 import { feedback, vertex } from "./shaders/feedback";
 import { copy, display } from "./shaders/display";
+import { getTransitionPerformance, transitionSize, TransitionFrameBudget } from "./performance";
 
 export class DatamoshEngine {
   private renderer: THREE.WebGLRenderer;
@@ -22,7 +23,12 @@ export class DatamoshEngine {
   private settling?: gsap.core.Timeline;
   private lost: () => void;
   private failed = false;
-  private mobile = matchMedia("(pointer: coarse)").matches;
+  private profile = getTransitionPerformance();
+  private disposed = false;
+  private warming?: Promise<void>;
+  private budget = new TransitionFrameBudget(this.profile.fps);
+  private lastRendered = 0;
+  private freezeHistory = false;
   private params = { progress: 0, strength: 0, inject: 0.005, retention: 0.96, reveal: 0 };
   preset: Preset = presets.signal;
   debug: "output" | "history" | "previous" | "mask" = "output";
@@ -63,9 +69,7 @@ export class DatamoshEngine {
       console.warn("[Datamosh] Shader compilation failed", gl.getProgramInfoLog(program), gl.getShaderInfoLog(vertexShader), gl.getShaderInfoLog(fragmentShader));
       this.failed = true;
     };
-    const scale = Math.min(this.mobile ? 0.5 : 0.65, (this.mobile ? 900 : 1280) / Math.max(innerWidth, innerHeight));
-    const w = Math.max(1, Math.round(innerWidth * scale));
-    const h = Math.max(1, Math.round(innerHeight * scale));
+    const { width: w, height: h } = transitionSize(this.profile, innerWidth, innerHeight);
     this.renderer.setSize(w, h, false);
     const options = { depthBuffer: false, stencilBuffer: false, generateMipmaps: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.UnsignedByteType };
     this.read = new THREE.WebGLRenderTarget(w, h, options);
@@ -78,12 +82,58 @@ export class DatamoshEngine {
     canvas.addEventListener("webglcontextlost", this.lost);
   }
 
+  get captureSize() { return { width: this.read.width, height: this.read.height }; }
+
   prewarm() {
+    return this.warming ??= this.compileMaterials();
+  }
+
+  private async compileMaterials() {
+    // Parallel shader compilation avoids synchronously waiting for linking on
+    // a tap. Start this on idle/intent and let the controller bound the wait.
     for (const material of [this.simulation, this.copier, this.display]) {
+      if (this.disposed) return;
+      // Three keys programs by output color space as well as material. The
+      // feedback/copy passes run in a linear offscreen target; warming them
+      // against the sRGB screen would still compile new programs on first use.
+      this.renderer.setRenderTarget(material === this.display ? null : this.read);
       this.quad.material = material;
-      this.renderer.compile(this.scene, this.camera);
+      await this.renderer.compileAsync(this.scene, this.camera);
     }
+    if (!this.disposed) this.renderer.setRenderTarget(null);
     if (this.failed) throw new Error("Datamosh shader failed");
+  }
+
+  private reduceQuality(action: "reduce" | "dissolve") {
+    if (action === "dissolve") {
+      // If downsampling was insufficient, stop the expensive simulation and
+      // dissolve the retained history into the live DOM on the same timeline.
+      this.freezeHistory = true;
+      this.canvas.dataset.datamoshQuality = "dissolve";
+      return;
+    }
+    const longest = Math.max(this.read.width, this.read.height);
+    const factor = Math.max(0.75, Math.min(1, 192 / longest));
+    if (factor >= 1) return;
+    const width = Math.max(1, Math.round(this.read.width * factor));
+    const height = Math.max(1, Math.round(this.read.height * factor));
+    const previous = this.read;
+    const previousWrite = this.write;
+    const next = previous.clone();
+    const nextWrite = previousWrite.clone();
+    next.setSize(width, height); nextWrite.setSize(width, height);
+    // Preserve the accumulated trails on GPU while changing resolution.
+    this.copier.uniforms.uImage.value = previous.texture;
+    this.render(this.copier, next);
+    this.read = next; this.write = nextWrite;
+    this.copier.uniforms.uImage.value = null;
+    this.renderer.setSize(width, height, false);
+    this.uniforms.uResolution.value.set(width, height);
+    this.uniforms.uBlockPx.value = this.preset.block * width / innerWidth;
+    this.display.uniforms.uImage.value = next.texture;
+    this.render(this.display, null);
+    previous.dispose(); previousWrite.dispose();
+    this.canvas.dataset.datamoshQuality = "reduced";
   }
 
   private texture(visual: TransitionVisual) {
@@ -119,6 +169,10 @@ export class DatamoshEngine {
     Object.assign(this.params, { progress: 0, strength: 0, inject: 0.005, retention: preset.feedback, reveal: 0 });
     this.canvas.style.opacity = "1";
     this.last = performance.now(); this.elapsed = 0; this.accumulator = 0;
+    this.budget = new TransitionFrameBudget(this.profile.fps);
+    this.lastRendered = this.last; this.freezeHistory = false;
+    this.canvas.dataset.datamoshFps = String(this.profile.fps);
+    this.canvas.dataset.datamoshQuality = "normal";
     this.raf = requestAnimationFrame(this.tick);
     const cover = Math.min(0.18, preset.duration / 4000);
     this.timeline = gsap.timeline()
@@ -178,16 +232,25 @@ export class DatamoshEngine {
 
   private tick = (now: number) => {
     try {
-      const step = this.mobile ? 1 / 30 : 1 / 60;
+      const step = 1 / this.profile.fps;
       this.accumulator += Math.min((now - this.last) / 1000, 0.05);
       this.last = now;
-      // Fixed simulation cadence, at most three steps after a dropped frame.
-      let count = 0;
-      while (this.accumulator >= step && count++ < 3) {
-        this.accumulator -= step; this.elapsed += step;
+      // Present only when a simulation step is due: no extra display passes
+      // at 60/120 Hz on a 30 Hz mobile effect, and no catch-up render bursts.
+      if (this.accumulator + 0.0005 < step) {
+        this.raf = requestAnimationFrame(this.tick);
+        return;
+      }
+      const dt = Math.min(this.accumulator, 0.05);
+      this.accumulator = Math.max(0, this.accumulator - step) % step;
+      this.elapsed += dt;
+      const started = performance.now();
+      const gap = now - this.lastRendered;
+      this.lastRendered = now;
+      if (!this.freezeHistory) {
         const u = this.uniforms;
         u.uHistory.value = this.read.texture;
-        u.uDt.value = step; u.uTime.value = this.elapsed;
+        u.uDt.value = dt; u.uTime.value = this.elapsed;
         u.uProgress.value = this.params.progress; u.uStrength.value = this.params.strength * (this.preset.strength ?? 1);
         u.uCrossover.value = this.preset.crossover ?? 0.8;
         u.uFeedback.value = this.feedbackEnabled ? this.params.retention : 0;
@@ -208,6 +271,12 @@ export class DatamoshEngine {
         this.render(this.simulation, null);
         this.uniforms.uDebug.value = 0;
       } else this.render(this.display, null);
+      // Frame gaps include GPU backpressure; command submission time alone
+      // would miss it. Ignore startup frames and react only to sustained load.
+      if (this.profile.mobile && !this.freezeHistory) {
+        const action = this.budget.sample(gap, performance.now() - started);
+        if (action) this.reduceQuality(action);
+      }
       this.raf = requestAnimationFrame(this.tick);
     } catch (error) {
       console.warn("[Datamosh] Rendering failed; releasing overlay.", error);
@@ -229,6 +298,7 @@ export class DatamoshEngine {
   }
 
   dispose() {
+    this.disposed = true;
     this.stop();
     this.canvas.removeEventListener("webglcontextlost", this.lost);
     this.read.dispose(); this.write.dispose();

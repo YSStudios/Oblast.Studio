@@ -8,6 +8,7 @@ import { captureViewport, waitForPrimaryMedia, type TransitionVisual } from "./c
 import type { DatamoshEngine } from "./DatamoshEngine";
 import { DatamoshOverlay } from "./DatamoshOverlay";
 import { transitionConfig } from "./presets";
+import { getTransitionPerformance } from "./performance";
 
 const DatamoshDebug = dynamic(() => import("./DatamoshDebug"), { ssr: false });
 
@@ -50,6 +51,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     if (overlay.current) overlay.current.dataset.active = "false";
     delete document.documentElement.dataset.datamosh;
     delete document.documentElement.dataset.datamoshReveal;
+    delete document.documentElement.dataset.datamoshMobile;
     window.dispatchEvent(new CustomEvent("oblast:transition", { detail: false }));
     if (focus && request?.pushed && location.pathname === request.path) {
       const heading = [...document.querySelectorAll<HTMLElement>("main h1")].find((el) => el.getClientRects().length > 0) ?? document.getElementById("main");
@@ -57,21 +59,38 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       heading?.focus({ preventScroll: true });
     }
     clearTimeout(idleTimer.current);
-    idleTimer.current = window.setTimeout(releaseEngine, transitionConfig.idleRelease);
+    idleTimer.current = window.setTimeout(releaseEngine, getTransitionPerformance().idleRelease);
   }, [releaseEngine]);
 
   const warm = useCallback(() => {
     if (!allowed()) return;
-    void loadEngine().then(({ DatamoshEngine }) => {
+    void loadEngine().then(async ({ DatamoshEngine }) => {
       if (engine.current || !canvas.current || active.current) return;
       try {
         engine.current = new DatamoshEngine(canvas.current, () => { finish(); releaseEngine(); });
-        engine.current.prewarm();
+        const warming = engine.current;
+        await warming.prewarm();
+        if (engine.current !== warming || active.current) return;
         clearTimeout(idleTimer.current);
-        idleTimer.current = window.setTimeout(releaseEngine, transitionConfig.idleRelease);
+        idleTimer.current = window.setTimeout(releaseEngine, getTransitionPerformance().idleRelease);
       } catch { releaseEngine(); }
     }).catch(() => {});
   }, [finish, releaseEngine]);
+
+  useEffect(() => {
+    if (!getTransitionPerformance().mobile) return;
+    // Touch has no hover: prepare after initial rendering instead of compiling
+    // shaders synchronously during the first tap.
+    let idle = 0;
+    const timer = window.setTimeout(() => {
+      if ("requestIdleCallback" in window) idle = window.requestIdleCallback(warm, { timeout: 2000 });
+      else warm();
+    }, 1200);
+    return () => {
+      clearTimeout(timer);
+      if (idle) window.cancelIdleCallback(idle);
+    };
+  }, [warm]);
 
   const navigate = useCallback((href: string, link: HTMLAnchorElement) => {
     if (!allowed() || !canvas.current) return false;
@@ -91,13 +110,15 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     };
     const started = performance.now();
     request.timer = window.setTimeout(fallback, transitionConfig.captureBudget);
-    void loadEngine().then(({ DatamoshEngine }) => {
+    void loadEngine().then(async ({ DatamoshEngine }) => {
       if (!current()) return;
       if (performance.now() - started > transitionConfig.captureBudget) { fallback(); return; }
-      const visual = captureViewport(link.closest("[data-cursor='project']"));
-      request.visuals.push(visual);
       engine.current ??= new DatamoshEngine(canvas.current!, () => { fallback(); releaseEngine(); });
-      if (!current()) return;
+      const prepared = engine.current;
+      await prepared.prewarm();
+      if (!current() || engine.current !== prepared) return;
+      const visual = captureViewport(link.closest("[data-cursor='project']"), prepared.captureSize);
+      request.visuals.push(visual);
       const tuning = process.env.NODE_ENV === "development" ? getDebugSettings() : undefined;
       if (tuning) {
         engine.current.feedbackEnabled = tuning.feedbackEnabled;
@@ -107,7 +128,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         if (!current() || request.pushed) return;
         request.pushed = true;
         clearTimeout(request.timer);
-        request.timer = window.setTimeout(() => finish(), transitionConfig.deadline);
+        request.timer = window.setTimeout(() => finish(true), transitionConfig.deadline);
         router.push(request.href, { scroll: false });
       }, tuning);
       clearTimeout(request.timer);
@@ -115,6 +136,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       request.timer = window.setTimeout(fallback, 500);
       if (overlay.current) overlay.current.dataset.active = "true";
       document.documentElement.dataset.datamosh = "active";
+      document.documentElement.dataset.datamoshMobile = String(getTransitionPerformance().mobile);
       window.dispatchEvent(new CustomEvent("oblast:transition", { detail: true }));
     }).catch(fallback);
     return true;
@@ -135,7 +157,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     void waitForPrimaryMedia().then(() => {
       if (active.current?.id !== request.id || location.pathname !== path) return;
       try {
-        const incoming = captureViewport();
+        const incoming = captureViewport(undefined, engine.current?.captureSize);
         request.visuals.push(incoming);
         engine.current?.resolve(incoming,
           () => { if (active.current?.id === request.id) finish(true); },

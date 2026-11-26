@@ -57,6 +57,8 @@ export function DatamoshLab() {
       const incoming = visual(useVideo && video.current && video.current.readyState >= 2 ? video.current : b);
       owned.current.push(source, incoming);
       engine.current ??= new DatamoshEngine(canvas.current, () => { clear(); setStatus("WebGL unavailable or context lost. Reset to retry."); });
+      await engine.current.prewarm();
+      if (id !== runId.current.value) return;
       engine.current.feedbackEnabled = feedback;
       engine.current.debug = debug;
       engine.current.start(source, () => {
